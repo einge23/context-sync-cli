@@ -1,0 +1,18 @@
+# Build outputs
+bin/
+obj/
+
+# NuGet
+*.nupkg
+.nuget/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.claude
+
+# Local config (contains tokens)
+.contextsync/
