@@ -2,6 +2,11 @@ using System.CommandLine;
 using ContextSync.Services;
 
 const string ContextFolder = ".ai-context";
+const string PathSeparatorEncoding = "__";
+
+// Gists don't support subdirectories, so we encode paths
+static string EncodePath(string path) => path.Replace("/", PathSeparatorEncoding);
+static string DecodePath(string encoded) => encoded.Replace(PathSeparatorEncoding, "/");
 
 var configService = new ConfigService();
 var gitService = new GitService();
@@ -54,7 +59,7 @@ pushCommand.SetHandler(async () =>
     var files = Directory.GetFiles(contextPath, "*.*", SearchOption.AllDirectories)
         .Where(f => f.EndsWith(".md") || f.EndsWith(".txt"))
         .ToDictionary(
-            f => Path.GetRelativePath(contextPath, f).Replace(Path.DirectorySeparatorChar, '/'),
+            f => EncodePath(Path.GetRelativePath(contextPath, f).Replace(Path.DirectorySeparatorChar, '/')),
             f => File.ReadAllText(f));
 
     if (files.Count == 0)
@@ -123,7 +128,7 @@ pullCommand.SetHandler(async () =>
 
     foreach (var (name, content) in files)
     {
-        var filePath = Path.Combine(contextPath, name);
+        var filePath = Path.Combine(contextPath, DecodePath(name));
         Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
         File.WriteAllText(filePath, content);
     }
